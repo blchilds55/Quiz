@@ -13,8 +13,9 @@ var ansTwo = document.createElement("button");
 var ansThree = document.createElement("button");
 var ansFour = document.createElement("button");
 var dontActivate = false;
-var scoreArr = [];
-var scoreList;
+var score = [];
+var taskIdCounter = 0;
+var savedTasks = [];
 
 ansOne.setAttribute("data-task-id", 0);
 ansTwo.setAttribute("data-task-id", 1);
@@ -102,29 +103,43 @@ function finished() {
     initialsSubmit.setAttribute("type", "submit");
 }
 
-function saveScore(event) {
-    event.preventDefault();
-    questionsBlock.textContent = "High Scores:";
-    finishedBlock.removeChild(scoreForm);
-
-    localStorage.setItem("initials", initialsInput.value);
-    localStorage.setItem("score", timeLeft);
-
-    displayScore();
-}
-
 function displayScore() {
 
 }
 
-function createScoreList(scoreArr) {
-    var scoreList = document.createElement("div");
-    scoreList.innerHTML = "<h3 class='task-name'>" + scoreArr[i] + "</h3>";
-    finishedBlock.appendChild(scoreList);
+function toScoreSheet(event) {
+    event.preventDefault();
+    questionsBlock.textContent = "High Scores:";
+    finishedBlock.removeChild(scoreForm);
+    saveScore();
 }
 
+function saveScore() {
+    var scoreDataObj = {initials: initialsInput.value, score: timeLeft};
+    scoreDataObj.id = taskIdCounter;
+    score.push(scoreDataObj);
+    localStorage.setItem("score", JSON.stringify(score));
+    displayScore();
+    taskIdCounter++;
+}
+
+function loadScores() {
+    var savedTasks = localStorage.getItem("score");
+  
+    if (!savedTasks) {
+      return false;
+    }
+  
+    savedTasks = JSON.parse(savedTasks);
+
+    for (var i = 0; i < savedTasks.length; i++) {
+        saveScore(savedTasks[i]);
+    }
+}
+
+loadScores();
 startQuiz.addEventListener("click", start);
 answersBlock.addEventListener("click", test);
-initialsSubmit.addEventListener("click", saveScore);
+initialsSubmit.addEventListener("click", toScoreSheet);
 
 
